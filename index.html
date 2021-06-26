@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://ogp.me/ns/fb#">
+
+<head>
+   <title>Bezier Curve</title>
+   <link rel="shortcut icon" href="http://i.imgbox.com/LaN61Wz2.png">
+   <meta name="description" content="Generate Bézier Curve">
+   <meta name="keywords" content="Vietnamese,Benzier,Curve,Bézier">
+   <meta name="author" content="GensokyoVN">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+   <meta property="og:url" content="https://www.gensokyovn.net/h21-page" />
+   <meta property="og:type" content="website" />
+   <meta property="og:title" content="Benzier Curve" />
+   <meta property="og:description" content="" />
+   <meta property="og:image" content="http://i.imgbox.com/SNLTOCmD.png" />
+   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+   <style type="text/css">
+      body {
+         cursor: context-menu;
+         background-color: #222;
+         background-image: url('http://i.imgbox.com/NrECH2cB.png');
+         color: white;
+         text-align: center;
+      }
+      
+      .canvas {
+         box-shadow: 0px 0px 2px 3px #000000, 0px 0px 2px 6px #ffffff, 0px 0px 2px 8px #000000;
+      }
+      
+      .title {
+         font-weight: bold;
+         font-size: 30px;
+         font-familty: Arial;
+         color: white;
+         text-shadow: 0px 0px 2px #000000, 0px 0px 4px #ffffff, 0px 0px 6px #ff0000, 0px 0px 6px #ff0000, 0px 0px 6px #ff0000;
+      }
+      
+      .credit {
+         font-size: 12px;
+         font-familty: Arial;
+         color: white;
+      }
+      
+      hr {
+         height: 2px;
+         background-color: white;
+         margin: 3px;
+         width: 100%;
+      }
+      
+      input {
+         width: 100%;
+         max-width: 75px;
+      }
+   </style>
+</head>
+
+<body>
+   <div style="display: inline-block; vertical-align: top; text-align: left"><span class="title">Bézier Curve</span>
+      <br>
+      <hr> Number of control point: <input type="text" id="controlpoint" value="3"></input>
+      <br>Maximum: 20
+      <hr> Accuracy: <input type="text" id="accuracy" value="400"></input>
+      <hr> Clear Drawing: <input type="checkbox" id="cleardraw" checked></input>
+      <br><span class="credit"><i>Warning: Turn this option off may cause lagging issue.
+      <br>Especially if accuracy is above 5000.</i></span>
+      <hr> Color and Thickness
+      <table>
+         <tbody>
+            <tr>
+               <td style="width: 100px"></td>
+               <td style="width: 75px; text-align: center">Color</td>
+               <td style="width: 75px; text-align: center">Thickness</td>
+            </tr>
+            <tr>
+               <td>Background:</td>
+               <td><input type="text" class="color" data-type="bgcolor" value="#eeeeee"></input></td>
+               <td></td>
+            </tr>
+            <tr>
+               <td>Control Point:</td>
+               <td><input type="text" class="color" data-type="cpoint" value="#ff0000"></input></td>
+               <td><input type="text" class="thickness" data-type="cpoint" value="6"></input></td>
+            </tr>
+            <tr>
+               <td>Control Line:</td>
+               <td><input type="text" class="color" data-type="cline" value="#ff0000"></input></td>
+               <td><input type="text" class="thickness" data-type="cline" value="3"></input></td>
+            </tr>
+            <tr>
+               <td>Drawing Line:</td>
+               <td><input type="text" class="color" data-type="line" value="#005500"></input></td>
+               <td><input type="text" class="thickness" data-type="line" value="1"></input></td>
+            </tr>
+            <tr>
+               <td>Curve Point:</td>
+               <td><input type="text" class="color" data-type="curve" value="#000000"></input></td>
+               <td><input type="text" class="thickness" data-type="curve" value="6"></input></td>
+            </tr>
+         </tbody>
+      </table>
+      <hr> Coordinator (range 0 ~ 600):
+      <br>
+      <button type="button" id="random">All Random!</button>
+      <table id="coordinator">
+         <tbody>
+            <tr>
+               <td style="width: 60px"></td>
+               <td style="width: 75px; text-align: center">X</td>
+               <td style="width: 75px; text-align: center">Y</td>
+            </tr>
+         </tbody>
+      </table>
+      <hr>
+      <span class="credit"><i>Lauqerm@GensokyoVN</i></span>
+   </div>
+   <div style="display: inline-block; width: 616px; text-align: center" align="center">
+      <canvas class="canvas" id="canvas" width="600" height="600">Does not support canvas</canvas>
+   </div>
+   <script type="text/javascript">
+      var po = [],
+         plen = po.length;
+      var acc = 400;
+      var canvas = document.getElementById('canvas'),
+         ctx = canvas.getContext('2d');
+      var color = {
+         bgcolor: '#eeeeee',
+         cpoint: '#ff0000',
+         cline: '#ff0000',
+         curve: '#000000',
+         line: '#005500'
+      };
+      var thickness = {
+         cpoint: 3,
+         cline: 3,
+         curve: 3,
+         line: 1
+      };
+      var option = {
+         cleardraw: true
+      };
+      var u_canvas = function() {
+         //Background
+         ctx.fillStyle = color.bgcolor;
+         ctx.fillRect(0, 0, 600, 600);
+      };
+      var u_control_root = function() {
+         //Control Point
+         var cradius = thickness.cpoint;
+         ctx.fillStyle = color.cpoint;
+         ctx.lineWidth  = thickness.cline;
+         for(var i = 0; i < plen; i++) {
+            target = po[i];
+            ctx.beginPath();
+            ctx.arc(target.x, target.y, cradius, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
+         }
+         //Control Line
+         ctx.strokeStyle = color.cline;
+         for(i = 0; i < plen - 1; i++) {
+            target = po[i];
+            destination = po[i + 1];
+            ctx.beginPath();
+            ctx.moveTo(target.x, target.y);
+            ctx.lineTo(destination.x, destination.y);
+            ctx.closePath();
+            ctx.stroke();
+         }
+      };
+      var draw = function(z) {
+         ctx.fillStyle = color.curve;
+         ctx.strokeStyle = color.line;
+         //Clone point array
+         var clone = [];
+         for(var i = 0; i < plen; i++) clone.push(po[i]);
+         //Draw line
+         var target, destination, clength;
+         var cradius = thickness.curve;
+         var cleardraw = option.cleardraw;
+         ctx.lineWidth = thickness.line;
+         for(var j = 0; j < plen; j++) {
+            //Start from the first control point, draw line to the next control point, repeating until the last control point
+            clength = clone.length - 1;
+            //If reached the last control point, draw key point - the point belong to the curve
+            if(clength === 0) {
+               target = clone[0];
+               ctx.beginPath();
+               ctx.arc(target.x, target.y, cradius, 0, 2 * Math.PI);
+               ctx.closePath();
+               ctx.fill();
+               continue; //Prevent exceeding line draw
+            }
+            //If the last control is not reached, update new control point
+            for(var k = clength; k > 0; k--) {
+               target = clone[k];
+               destination = clone[k - 1];
+               target.x = target.x - (target.x - destination.x) * z;
+               target.y = target.y - (target.y - destination.y) * z;
+            }
+            clone.splice(0, 1);
+            //Use updated control points to draw new line, skip it if cleardraw is true
+            if(!cleardraw) {
+               for(k = 0; k < clength - 1; k++) {
+                  target = clone[k];
+                  destination = clone[k + 1];
+                  ctx.beginPath()
+                  ctx.moveTo(target.x, target.y);
+                  ctx.lineTo(destination.x, destination.y);
+                  ctx.closePath();
+                  ctx.stroke();
+               }
+            }
+         }
+      };
+      var benzier = function() {
+         //Draw curve with given accuracy
+         for(var t = 0; t < acc; t++) draw(t / acc);
+
+      };
+      var control_point = function(count, force) {
+         if(count > 20) count = 20;
+         var box = $('#coordinator').find('tbody').eq(0);
+         if(count < plen) {
+            var tr = box.find('tr.cpoint');
+            for(var j = count; j < plen; j++) {
+               tr.eq(j).remove();
+            }
+         }
+         else {
+            for(var i = plen; i < count; i++) {
+               box.append('<tr class="cpoint"><td>Point ' + (i + 1) + ':</td><td><input class="coor new" type="text" data-type="x" data-order="' + i + '" value="0"></input></td><td><input class="coor new" type="text" data-type="y" data-order="' + i + '" value="0"></input></td></tr>');
+            }
+         }
+         control_point_event();
+         plen = count;
+      };
+      var control_point_event = function() {
+         $('.new').on('blur', function() {
+            var coor = $('.coor'),
+               clen = coor.length;
+            var a, value, target;
+            for(var i = 0; i < clen; i++) {
+               a = coor.eq(i);
+               value = parseInt(a.val());
+               target = po[a.attr('data-order')];
+               if(a.attr('data-type') === 'x') target.x = value
+               else target.y = value;
+            }
+            plen = i / 2;
+            redraw();
+         });
+         $('.new').removeClass('new');
+      };
+      var redraw = function() {
+         ctx.clearRect(0, 0, 600, 600);
+         u_canvas();
+         u_control_root();
+         benzier();
+      };
+      //Init
+      $(function() {
+         for(var i = 0; i < 20; i++) po.push({
+            x: 0,
+            y: 0
+         });
+         $('#controlpoint').on('blur', function() {
+            var a = $(this);
+            control_point(parseInt(a.val()));
+         });
+         $('#accuracy').on('blur', function() {
+            var a = $(this);
+            acc = parseInt(a.val());
+            $('.coor').eq(0).trigger('blur');
+         });
+         $('#cleardraw').on('change', function() {
+            var a = $(this);
+            if(a.attr('checked') === 'checked') option.cleardraw = true;
+            else option.cleardraw = false;
+            $('.coor').eq(0).trigger('blur');
+         });
+         $('#random').on('click', function() {
+            var coor = $('.coor'),
+               clen = coor.length;
+            for(var i = 0; i < clen; i++) coor.eq(i).val(parseInt(Math.random()*600));
+            $('.coor').eq(0).trigger('blur');
+         });
+         $('.color').on('blur', function() {
+            var a = $(this);
+            color[a.attr('data-type')] = a.val();
+            $('.coor').eq(0).trigger('blur');
+         });
+         $('.thickness').on('blur', function() {
+            var a = $(this);
+            var value = parseInt(a.val());
+            var type = a.attr('data-type');
+            if(type === 'cpoint' || type === 'curve') value = value/2;
+            thickness[type] = value;
+            $('.coor').eq(0).trigger('blur');
+         });
+         redraw();
+         control_point(3, 1);
+      });
+   </script>
+</body>
+
+</html>
