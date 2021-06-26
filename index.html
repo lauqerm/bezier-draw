@@ -3,7 +3,7 @@
 
 <head>
    <title>Bezier Curve</title>
-   <link rel="shortcut icon" href="http://i.imgbox.com/LaN61Wz2.png">
+   <link rel="shortcut icon" href="./logo.svg">
    <meta name="description" content="Generate Bézier Curve">
    <meta name="keywords" content="Vietnamese,Benzier,Curve,Bézier">
    <meta name="author" content="GensokyoVN">
@@ -13,7 +13,10 @@
    <meta property="og:title" content="Benzier Curve" />
    <meta property="og:description" content="" />
    <meta property="og:image" content="http://i.imgbox.com/SNLTOCmD.png" />
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300&display=swap" rel="stylesheet">
+   <script src="./jquery.min.js" type="text/javascript"></script>
    <style type="text/css">
       body {
          cursor: context-menu;
@@ -21,6 +24,8 @@
          background-image: url('http://i.imgbox.com/NrECH2cB.png');
          color: white;
          text-align: center;
+         font-size: 17px;
+         font-family: 'Roboto Condensed', sans-serif;
       }
       
       .canvas {
@@ -30,14 +35,13 @@
       .title {
          font-weight: bold;
          font-size: 30px;
-         font-familty: Arial;
          color: white;
          text-shadow: 0px 0px 2px #000000, 0px 0px 4px #ffffff, 0px 0px 6px #ff0000, 0px 0px 6px #ff0000, 0px 0px 6px #ff0000;
       }
       
       .credit {
          font-size: 12px;
-         font-familty: Arial;
+         font-family: 'Roboto Condensed', sans-serif;
          color: white;
       }
       
@@ -112,7 +116,7 @@
          </tbody>
       </table>
       <hr>
-      <span class="credit"><i>Lauqerm@GensokyoVN</i></span>
+      <span class="credit"><i>Lauqerm</i></span>
    </div>
    <div style="display: inline-block; width: 616px; text-align: center" align="center">
       <canvas class="canvas" id="canvas" width="600" height="600">Does not support canvas</canvas>
